@@ -1,0 +1,6 @@
+from abc import ABC, abstractmethod
+class ISettingService(ABC):
+    @abstractmethod
+    def get(self) -> object: ...
+    @abstractmethod
+    def update(self, data: dict, files=None, actor_id: str = '') -> object: ...

@@ -1,0 +1,52 @@
+{% extends "layouts/fe/default/base.html" %}
+{% block content %}
+<!-- Hero Section -->
+<section class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-12">
+      <div class="w-full h-72 sm:h-96 rounded-3xl overflow-hidden relative bg-gray-100">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center text-gray-400">
+            <i class="fas fa-image text-6xl mb-4"></i>
+            <p class="text-lg">Hero Image</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid lg:grid-cols-5 gap-10">
+        <div class="lg:col-span-3">
+          <span class="text-orange-600 text-sm font-semibold tracking-wide uppercase mb-4 block">{{ setting.initial|default:"Digital Agency" }}</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 leading-tight mb-6">
+            Welcome to<br>
+            <span class="text-orange-600">{{ setting.name|default:"DjangoAdmin" }}</span>
+          </h1>
+          <p class="text-lg text-neutral-600 mb-8">
+            {{ setting.description|default:"Partner with us to transform your vision into exceptional digital experiences." }}
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="{% url 'web.auth.login' %}" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 transition-colors rounded-full text-white font-semibold">Get Started</a>
+          </div>
+        </div>
+        <div class="lg:col-span-2 flex flex-col gap-6">
+          <div class="p-6 bg-orange-50 rounded-2xl">
+            <span class="text-4xl font-bold text-orange-600 block mb-1">150+</span>
+            <span class="text-neutral-600">Projects delivered worldwide</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-5 bg-neutral-50 rounded-2xl"><span class="text-2xl font-bold block">12</span><span class="text-sm text-neutral-500">Years</span></div>
+            <div class="p-5 bg-neutral-50 rounded-2xl"><span class="text-2xl font-bold block">98%</span><span class="text-sm text-neutral-500">Satisfaction</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Contact footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <p class="text-2xl font-bold mb-4">{{ setting.name|default:"DjangoAdmin" }}</p>
+    {% if setting.email %}<p class="text-gray-400">{{ setting.email }}</p>{% endif %}
+    {% if setting.phone %}<p class="text-gray-400">{{ setting.phone }}</p>{% endif %}
+    <p class="mt-4 text-gray-500 text-sm">{{ setting.copyright|default:"© 2024" }}</p>
+  </div>
+</footer>
+{% endblock %}

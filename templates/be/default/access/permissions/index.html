@@ -1,0 +1,144 @@
+{% extends "layouts/be/default/base.html" %}
+{% load core_tags %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Permission Management</h1>
+</div>
+
+<div class="tw-card p-0 overflow-hidden">
+  <div class="px-6 py-4 border-b flex items-center justify-between">
+    <h2 class="text-lg font-bold" style="color:var(--primary)">Permission List</h2>
+    <div class="btn-group btn-sm">
+      <a href="{% url 'admin.v1.access.permission.create' %}" class="btn btn-success btn-sm"><i class="fas fa-fw fa-plus"></i> Add Data</a>
+      <button type="submit" form="selection" formmethod="post" formaction="{% url 'admin.v1.access.permission.delete_selected' %}" data-confirm="Confirm Delete" class="btn btn-danger btn-sm"><i class="fas fa-fw fa-times"></i> Delete Selected</button>
+    </div>
+  </div>
+
+  <div class="p-4" style="overflow-x:auto">
+    <table class="table table-bordered table-hover align-middle">
+      <thead>
+        <form id="searchform" method="get" action="{% url 'admin.v1.access.permission.index' %}">
+          <tr>
+            <th width="2%"></th>
+            <th width="7%">
+              <select name="q_page_size" id="q_page_size" class="form-control">
+                <option value="10" {% if filter.q_page_size == '10' or not filter.q_page_size %}selected{% endif %}>10</option>
+                <option value="20" {% if filter.q_page_size == '20' %}selected{% endif %}>20</option>
+                <option value="50" {% if filter.q_page_size == '50' %}selected{% endif %}>50</option>
+                <option value="100" {% if filter.q_page_size == '100' %}selected{% endif %}>100</option>
+              </select>
+            </th>
+            <th width="18%"><input id="q_name" type="text" class="form-control" name="q_name" value="{{ filter.q_name|default:'' }}"></th>
+            <th width="9%">
+              <select name="q_guard" id="q_guard" class="form-control">
+                <option value="" disabled {% if not filter.q_guard %}selected{% endif %}>Select</option>
+                <option value="web" {% if filter.q_guard == 'web' %}selected{% endif %}>web</option>
+                <option value="api" {% if filter.q_guard == 'api' %}selected{% endif %}>api</option>
+              </select>
+            </th>
+            <th width="13%">
+              <select name="q_method" id="q_method" class="form-control">
+                <option value="" disabled {% if not filter.q_method %}selected{% endif %}>Select</option>
+                <option value="GET" {% if filter.q_method == 'GET' %}selected{% endif %}>GET</option>
+                <option value="POST" {% if filter.q_method == 'POST' %}selected{% endif %}>POST</option>
+                <option value="PATCH" {% if filter.q_method == 'PATCH' %}selected{% endif %}>PATCH</option>
+                <option value="PUT" {% if filter.q_method == 'PUT' %}selected{% endif %}>PUT</option>
+                <option value="DELETE" {% if filter.q_method == 'DELETE' %}selected{% endif %}>DELETE</option>
+              </select>
+            </th>
+            <th width="10%">
+              <select name="q_status" id="q_status" class="form-control">
+                <option value="" disabled {% if not filter.q_status %}selected{% endif %}>Select</option>
+                <option value="Active" {% if filter.q_status == 'Active' %}selected{% endif %}>Active</option>
+                <option value="Inactive" {% if filter.q_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+              </select>
+            </th>
+            <th width="15%"><input id="q_desc" type="text" class="form-control" name="q_desc" value="{{ filter.q_desc|default:'' }}"></th>
+            <th width="5%" class="text-center align-middle">
+              <div class="btn-group">
+                <button type="submit" form="searchform" class="btn btn-sm btn-success"><i class="fas fa-fw fa-search"></i></button>
+                <a href="{% url 'admin.v1.access.permission.index' %}" class="btn btn-sm btn-danger"><i class="fas fa-fw fa-times"></i></a>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th width="5%"><input type="checkbox" id="checkall"/></th>
+            <th width="5%">No</th>
+            <th width="18%">Name</th>
+            <th width="9%">Guard</th>
+            <th width="13%">Method</th>
+            <th width="10%">Status</th>
+            <th width="15%">Description</th>
+            <th width="5%">Action</th>
+          </tr>
+        </form>
+      </thead>
+      <tbody>
+        <form id="selection" method="post" action="{% url 'admin.v1.access.permission.delete_selected' %}">
+          {% csrf_token %}
+          {% for data in datas %}
+          <tr>
+            <td><input name="selected[]" value="{{ data.id }}" type="checkbox" /></td>
+            <td>{{ forloop.counter0|add:paginate_data.offset|add:"1" }}</td>
+            <td>{{ data.name }}</td>
+            <td><span class="badge text-bg-primary">{{ data.guard_name|default:'' }}</span></td>
+            <td>{{ data.method|default:'' }}</td>
+            <td class="text-left">
+              {% if data.status == 'Active' %}
+                <i class="fas fa-check-circle text-green-500 text-xl" title="Active"></i>
+              {% else %}
+                <i class="fas fa-times-circle text-red-500 text-xl" title="Inactive"></i>
+              {% endif %}
+            </td>
+            <td>{{ data.desc|default:'' }}</td>
+            <td class="text-center">
+              <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle-dd aria-expanded="false">Action</button>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <a href="{% url 'admin.v1.access.permission.edit' data.id %}" class="dropdown-item"><i class="fas fa-pen fa-fw"></i> Edit</a>
+                  <div class="dropdown-divider"></div>
+                  <form method="post" action="{% url 'admin.v1.access.permission.delete' data.id %}?_method=DELETE" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" data-confirm="Confirm Delete" class="dropdown-item danger"><i class="fas fa-trash fa-fw"></i> Delete</button>
+                  </form>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-gray-400 py-8">No data found.</td>
+          </tr>
+          {% endfor %}
+        </form>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end mt-4">
+      <nav>
+        <ul class="pagination">
+          {% if paginate_data.current_page > 1 %}
+          {% with prev_page=paginate_data.current_page|add:"-1" %}
+          <li class="page-item"><a class="page-link" href="{% add_or_update_param full_url 'q_page' prev_page %}">Previous</a></li>
+          {% endwith %}
+          {% endif %}
+          {% for page in paginate_data.pages %}
+          <li class="page-item {% if page == paginate_data.current_page %}active{% endif %}">
+            <a class="page-link" href="{% add_or_update_param full_url 'q_page' page %}">{{ page }}</a>
+          </li>
+          {% endfor %}
+          {% if paginate_data.current_page < paginate_data.total_page %}
+          {% with next_page=paginate_data.current_page|add:"1" %}
+          <li class="page-item"><a class="page-link" href="{% add_or_update_param full_url 'q_page' next_page %}">Next</a></li>
+          {% endwith %}
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#checkall").click(function(){ $('input:checkbox').not(this).prop('checked', this.checked); });
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% load core_tags %}
+<aside id="tw-sidebar" class="sidebar-gradient text-white w-64 min-h-screen fixed top-0 left-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+    <a href="{% url 'admin.v1.dashboard.index' %}" class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+        <div class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center overflow-hidden shrink-0">
+            {% if setting and setting.logo %}
+                <img src="{{ setting.logo }}" alt="logo" class="w-full h-full object-contain p-1">
+            {% else %}
+                <i class="fas fa-chart-line text-xl"></i>
+            {% endif %}
+        </div>
+        <span class="text-lg font-bold truncate">{{ setting.name|default:"Admin Panel" }}</span>
+    </a>
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <a href="{% url 'admin.v1.dashboard.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium {% block nav_dashboard %}{% endblock %}">
+            <i class="fas fa-tachometer-alt w-5 text-center"></i><span>Dashboard</span>
+        </a>
+        {% has_access 'admin.v1.components.index' 'GET' as can_components %}
+        {% if can_components %}
+        <a href="{% url 'admin.v1.components.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+            <i class="fas fa-cubes w-5 text-center"></i><span>UI Components</span>
+        </a>
+        {% endif %}
+        {% has_access 'admin.v1.access.permission.index' 'GET' as can_perm %}
+        {% has_access 'admin.v1.access.role.index' 'GET' as can_role %}
+        {% has_access 'admin.v1.access.user.index' 'GET' as can_user %}
+        {% has_access 'admin.v1.setting.index' 'GET' as can_setting %}
+        {% if can_perm or can_role or can_user or can_setting %}
+        <p class="px-4 pt-5 pb-2 text-xs uppercase tracking-wider text-white/70 font-bold">Maintenance</p>
+        {% if can_perm %}
+        <a href="{% url 'admin.v1.access.permission.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+            <i class="fas fa-key w-5 text-center"></i><span>Permission</span>
+        </a>
+        {% endif %}
+        {% if can_role %}
+        <a href="{% url 'admin.v1.access.role.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+            <i class="fas fa-user-shield w-5 text-center"></i><span>Role</span>
+        </a>
+        {% endif %}
+        {% if can_user %}
+        <a href="{% url 'admin.v1.access.user.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+            <i class="fas fa-users w-5 text-center"></i><span>User</span>
+        </a>
+        {% endif %}
+        {% if can_setting %}
+        <a href="{% url 'admin.v1.setting.index' %}" class="nav-link-tw flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+            <i class="fas fa-cog w-5 text-center"></i><span>Setting</span>
+        </a>
+        {% endif %}
+        {% endif %}
+    </nav>
+    <div class="px-6 py-4 text-xs text-white/40 border-t border-white/10">
+        {{ setting.copyright|default:"" }}
+    </div>
+</aside>
+<div id="tw-sidebar-overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>

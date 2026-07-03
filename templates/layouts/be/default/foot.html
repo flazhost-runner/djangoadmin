@@ -1,0 +1,185 @@
+<!-- Confirm Modal -->
+<div id="confirm-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="modal-box" style="background:#fff;border-radius:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:400px;margin:1rem;">
+    <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid #f3f4f6;">
+      <h3 class="font-semibold text-gray-800" id="confirm-modal-title">Confirm</h3>
+      <button class="modal-close" onclick="document.getElementById('confirm-modal')._reject&&document.getElementById('confirm-modal')._reject();_closeConfirmModal();" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:#9ca3af;">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:1rem 1.5rem;">
+      <p id="confirm-modal-msg" class="text-gray-700 text-sm"></p>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem 1.5rem;border-top:1px solid #f3f4f6;">
+      <button onclick="document.getElementById('confirm-modal')._reject&&document.getElementById('confirm-modal')._reject();_closeConfirmModal();" class="btn btn-outline-dark btn-sm" style="border:1px solid #374151;border-radius:.5rem;padding:.375rem .75rem;font-size:.75rem;cursor:pointer;background:none;color:#374151;">Cancel</button>
+      <button id="confirm-modal-ok" class="btn btn-danger btn-sm" style="background:#dc2626;color:#fff;border-radius:.5rem;padding:.375rem .75rem;font-size:.75rem;cursor:pointer;border:none;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="tw-toast" class="toast" style="position:fixed;bottom:1rem;right:1rem;z-index:9999;padding:.75rem 1rem;border-radius:.5rem;font-size:.875rem;color:#fff;min-width:200px;opacity:0;transform:translateY(.5rem);transition:all .3s;pointer-events:none;"></div>
+
+<script>
+(function(){
+    // CSS vars from theme
+    var root = document.documentElement;
+
+    // Sidebar toggle (mobile)
+    var toggle = document.getElementById('tw-sidebar-toggle');
+    var sidebar = document.getElementById('tw-sidebar');
+    var overlay = document.getElementById('tw-sidebar-overlay');
+    if(toggle && sidebar) {
+        toggle.addEventListener('click', function(){
+            sidebar.classList.toggle('-translate-x-full');
+            if(overlay) overlay.classList.toggle('hidden');
+        });
+        overlay && overlay.addEventListener('click', function(){
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+    }
+
+    // Dropdown toggle
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-toggle-dd]');
+        if(btn){
+            e.stopPropagation();
+            var menu = btn.nextElementSibling;
+            if(menu) menu.classList.toggle('show');
+            return;
+        }
+        document.querySelectorAll('.dropdown-menu.show').forEach(function(m){ m.classList.remove('show'); });
+    });
+
+    // Select all checkboxes
+    var checkall = document.getElementById('checkall');
+    if(checkall){
+        checkall.addEventListener('change', function(){
+            document.querySelectorAll('input[type="checkbox"][name="selected[]"]').forEach(function(cb){
+                cb.checked = checkall.checked;
+            });
+        });
+    }
+
+    // Auto-submit search on page_size change
+    var pageSizeEl = document.getElementById('q_page_size');
+    if(pageSizeEl){
+        pageSizeEl.addEventListener('change', function(){
+            var form = document.getElementById('searchform');
+            if(form) form.submit();
+        });
+    }
+
+    // Auto-hide flash after 3.5s
+    setTimeout(function(){
+        document.querySelectorAll('#flash-msg').forEach(function(el){ el.remove(); });
+    }, 3500);
+
+    // Image fallback placeholder
+    document.querySelectorAll('img[data-fallback]').forEach(function(img){
+        img.addEventListener('error', function(){
+            var fb = img.getAttribute('data-fallback') || '';
+            if(fb) img.src = fb;
+        });
+    });
+
+    // window.Toast
+    window.Toast = function(message, type) {
+        type = type || 'info';
+        var toast = document.getElementById('tw-toast');
+        if(!toast) return;
+        toast.textContent = message;
+        toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#3b82f6';
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        toast.style.pointerEvents = 'auto';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(function(){
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(.5rem)';
+            toast.style.pointerEvents = 'none';
+        }, 3500);
+    };
+
+    // confirmDialog — themed modal, returns Promise<boolean>
+    window.confirmDialog = function(msg, title) {
+        title = title || 'Confirm';
+        return new Promise(function(resolve, reject) {
+            var modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-modal-msg').textContent = msg || 'Are you sure?';
+            document.getElementById('confirm-modal-title').textContent = title;
+            modal._reject = function(){ resolve(false); };
+            document.getElementById('confirm-modal-ok').onclick = function(){
+                _closeConfirmModal();
+                resolve(true);
+            };
+            modal.style.display = 'flex';
+        });
+    };
+
+    window._closeConfirmModal = function(){
+        var modal = document.getElementById('confirm-modal');
+        modal.style.display = 'none';
+        modal._reject = null;
+    };
+
+    // data-confirm: intercept and use themed dialog
+    document.addEventListener('click', function(e){
+        var el = e.target.closest('[data-confirm]');
+        if(!el) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var msg = el.getAttribute('data-confirm') || 'Are you sure?';
+        confirmDialog(msg).then(function(ok){
+            if(ok){
+                if(el.tagName === 'FORM') el.submit();
+                else if(el.form) el.form.submit();
+                else if(el.href) window.location.href = el.href;
+                else el.removeAttribute('data-confirm'); el.click();
+            }
+        });
+    });
+
+    // ESC closes confirm modal
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+            var modal = document.getElementById('confirm-modal');
+            if(modal && modal.style.display !== 'none'){
+                if(modal._reject) modal._reject();
+                _closeConfirmModal();
+            }
+        }
+    });
+})();
+</script>
+
+<!-- Rich text editor untuk elemen .trumbowyg (polos) & .trumbowyg-editor (+ file manager) -->
+<script>
+(function () {
+    if (!(window.jQuery && jQuery.fn.trumbowyg)) return;
+    $(".trumbowyg").trumbowyg();
+    $(".trumbowyg-editor").trumbowyg({
+        btns: [
+            ['viewHTML'],
+            ['formatting'],
+            ['strong', 'em', 'del'],
+            ['superscript', 'subscript'],
+            ['link'],
+            ['filemanager'],
+            ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+            ['unorderedList', 'orderedList'],
+            ['horizontalRule'],
+            ['removeformat'],
+            ['fullscreen']
+        ],
+        semantic: { div: 'div' },
+        removeformatPasted: true,
+        autogrow: true,
+        plugins: { filemanager: true }
+    });
+    $("form").on("submit", function () {
+        $(this).find(".trumbowyg, .trumbowyg-editor").each(function () {
+            if ($(this).data('trumbowyg')) $(this).val($(this).trumbowyg('html'));
+        });
+    });
+})();
+</script>

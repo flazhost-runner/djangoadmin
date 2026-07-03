@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+{% include "layouts/be/default/head.html" %}
+<body class="bg-gray-100">
+  <style>
+    :root { --primary: {{ theme.primary }}; --secondary: {{ theme.secondary }}; --theme-light: {{ theme.light }}; --theme-dark: {{ theme.dark }}; }
+    .sidebar-gradient { background: linear-gradient(135deg, var(--primary) 0%, var(--theme-dark) 100%); }
+    .text-primary-tw { color: var(--primary); }
+    .btn-primary-tw { background: var(--primary); color: white; }
+    .btn-primary-tw:hover { background: var(--theme-dark); }
+    .tw-card { @apply bg-white rounded-xl shadow-sm border border-gray-200; }
+    /* nav-link active state */
+    .nav-link-tw { color: rgba(255,255,255,0.8); transition: all 0.2s; }
+    .nav-link-tw:hover, .nav-link-tw.active { background: rgba(255,255,255,0.15); color: white; }
+  </style>
+  <div class="flex min-h-screen">
+    {% include "layouts/be/default/sidebar.html" %}
+    <div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+      {% include "layouts/be/default/header.html" %}
+      <main class="flex-1 p-6">
+        {% include "layouts/be/default/flash.html" %}
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="text-center text-xs text-gray-400 py-4 border-t">
+        {{ setting.copyright|default:"© 2024 DjangoAdmin" }}
+      </footer>
+    </div>
+  </div>
+  {% include "layouts/be/default/foot.html" %}
+  {% block extra_foot %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}{{ setting.name|default:"Home" }}{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+{% load static %}
+<link rel="stylesheet" href="{% static 'be/default/vendor/fontawesome-free/css/all.min.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>{% block content %}{% endblock %}</body>
+</html>

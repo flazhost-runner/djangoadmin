@@ -1,0 +1,9 @@
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} mb-4 flex items-start gap-2 relative" id="flash-msg">
+    <i class="fas {% if message.tags == 'success' %}fa-check-circle text-green-600{% elif message.tags == 'error' or message.tags == 'danger' %}fa-times-circle text-red-600{% else %}fa-info-circle text-blue-600{% endif %} mt-0.5"></i>
+    <span>{{ message }}</span>
+    <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">&#x2715;</button>
+</div>
+{% endfor %}
+{% endif %}

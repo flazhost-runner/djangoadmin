@@ -1,0 +1,206 @@
+{% extends "layouts/be/default/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Setting Management</h1>
+</div>
+
+<form method="POST" action="{% url 'admin.v1.setting.update' %}?_method=PUT" enctype="multipart/form-data">
+{% csrf_token %}
+
+  <!-- Admin Theme Switcher -->
+  <div class="tw-card p-6 mb-6">
+    <div class="flex items-center gap-2 mb-1">
+      <i class="fas fa-palette" style="color:var(--primary)"></i>
+      <h2 class="text-lg font-bold" style="color:var(--primary)">Admin Theme</h2>
+    </div>
+    <p class="text-sm text-gray-500 mb-4">Choose a theme — admin appearance will update after saving.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      {% for name, colors in themes.items %}
+      <label class="cursor-pointer block">
+        <input type="radio" name="theme" value="{{ name }}" class="sr-only theme-radio" {% if data.theme == name %}checked{% endif %}>
+        <div class="theme-swatch rounded-xl overflow-hidden border-2 transition {% if data.theme == name %}border-gray-800{% else %}border-transparent{% endif %}" style="box-shadow:0 4px 10px rgba(0,0,0,.08)">
+          <div class="h-16 flex">
+            <div class="flex-1" style="background:{{ colors.dark }}"></div>
+            <div class="flex-1" style="background:{{ colors.primary }}"></div>
+            <div class="flex-1" style="background:{{ colors.secondary }}"></div>
+            <div class="flex-1" style="background:{{ colors.light }}"></div>
+          </div>
+          <div class="bg-white py-2 px-3 flex items-center justify-between">
+            <span class="text-sm font-semibold text-gray-700">{{ name }}</span>
+            <i class="fas fa-check-circle check-icon {% if data.theme != name %}hidden{% endif %}" style="color:{{ colors.primary }}"></i>
+          </div>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Frontend Template Switcher -->
+  <input type="hidden" id="fe_template_input" name="fe_template" value="{{ fe_active }}">
+  <div class="tw-card p-6 mb-6">
+    <div class="flex items-center gap-2 mb-1">
+      <i class="fas fa-window-maximize" style="color:var(--primary)"></i>
+      <h2 class="text-lg font-bold" style="color:var(--primary)">Frontend Template</h2>
+    </div>
+    <p class="text-sm text-gray-500 mb-4">Choose a frontend landing page template. It will be downloaded and applied on Save.</p>
+    <!-- Search form (GET, separate from POST form) -->
+    <form id="fe_search" method="GET" action="{% url 'admin.v1.setting.index' %}">
+      <div class="flex flex-wrap gap-2 mb-4">
+        <input type="text" name="q_name" value="{{ fe_search }}" placeholder="Search templates…" class="form-control" style="max-width:200px">
+        <select name="q_category" class="form-control" style="max-width:160px">
+          <option value="">All Categories</option>
+          {% for cat in fe_categories %}
+          <option value="{{ cat }}" {% if fe_category == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-search me-1"></i> Search</button>
+        <a href="{% url 'admin.v1.setting.index' %}" class="btn btn-danger btn-sm"><i class="fas fa-times me-1"></i> Reset</a>
+      </div>
+    </form>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {% for tpl in fe_templates %}
+      <div class="fe-card block" data-slug="{{ tpl.slug }}">
+        <div class="fe-swatch rounded-xl overflow-hidden border-2 {% if tpl.slug == fe_active %}border-gray-900{% else %}border-gray-300{% endif %}" style="box-shadow:0 2px 8px rgba(0,0,0,.12)">
+          <div class="fe-thumb fe-preview-trigger bg-gray-100 flex items-center justify-center" style="height:100px">
+            <i class="fas fa-image fa-2x text-gray-300"></i>
+          </div>
+          <div class="bg-white py-2 px-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-800 truncate">{{ tpl.name }}</span>
+              <i class="fas fa-check-circle fe-check {% if tpl.slug != fe_active %}hidden{% endif %}" style="color:var(--primary)"></i>
+            </div>
+            <span class="text-xs text-gray-400">{{ tpl.category }}</span>
+            <button type="button" class="fe-select btn btn-sm w-100 mt-2 fw-bold {% if tpl.slug == fe_active %}btn-primary-tw{% else %}btn-outline-dark{% endif %}" style="font-size:12px">
+              {% if tpl.slug == fe_active %}<i class="fas fa-check me-1"></i> TERPILIH{% else %}<i class="fas fa-hand-pointer me-1"></i> PILIH{% endif %}
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if paginate_data.total_page > 1 %}
+    <nav class="mt-4">
+      <ul class="pagination">
+        {% if paginate_data.has_prev %}
+        <li class="page-item"><a class="page-link" href="?fe_page={{ paginate_data.page|add:"-1" }}&q_name={{ fe_search }}&q_category={{ fe_category }}">Previous</a></li>
+        {% endif %}
+        {% for pg in paginate_data.page_range %}
+        <li class="page-item {% if pg == paginate_data.page %}active{% endif %}">
+          <a class="page-link" href="?fe_page={{ pg }}&q_name={{ fe_search }}&q_category={{ fe_category }}">{{ pg }}</a>
+        </li>
+        {% endfor %}
+        {% if paginate_data.has_next %}
+        <li class="page-item"><a class="page-link" href="?fe_page={{ paginate_data.page|add:"1" }}&q_name={{ fe_search }}&q_category={{ fe_category }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+
+  <!-- Setting Form -->
+  <div class="tw-card p-6">
+    <h2 class="text-lg font-bold mb-4" style="color:var(--primary)">Setting Form</h2>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Initial</label>
+      <input type="text" class="form-control" name="initial" value="{{ data.initial|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">App Name</label>
+      <input type="text" class="form-control" name="name" value="{{ data.name|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Description</label>
+      <textarea class="trumbowyg-editor form-control" name="description" rows="3">{{ data.description|default:'' }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Phone</label>
+      <input type="text" class="form-control" name="phone" value="{{ data.phone|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Email</label>
+      <input type="email" class="form-control" name="email" value="{{ data.email|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Address</label>
+      <input type="text" class="form-control" name="address" value="{{ data.address|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Copyright</label>
+      <input type="text" class="form-control" name="copyright" value="{{ data.copyright|default:'' }}">
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Company Logo</label>
+      {% if data.logo %}<div class="mb-2"><img src="{{ data.logo }}" alt="logo" style="max-height:60px;object-fit:contain"></div>{% endif %}
+      <input type="file" class="form-control" name="logo" accept="image/*">
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Login Image</label>
+      {% if data.login_image %}<div class="mb-2"><img src="{{ data.login_image }}" alt="login image" style="max-height:80px;object-fit:contain"></div>{% endif %}
+      <input type="file" class="form-control" name="login_image" accept="image/*">
+    </div>
+    <button type="submit" class="btn btn-primary-tw px-4 py-2">
+      <i class="fas fa-save me-1"></i> Save Setting
+    </button>
+  </div>
+</form>
+{% endblock %}
+{% block extra_foot %}
+<script>
+(function () {
+  var THEMES = {
+    {% for name, colors in themes.items %}
+    "{{ name }}": { primary: "{{ colors.primary }}", secondary: "{{ colors.secondary }}", light: "{{ colors.light }}", dark: "{{ colors.dark }}" }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+  function applyTheme(name) {
+    var t = THEMES[name];
+    if (!t) return;
+    var root = document.documentElement;
+    root.style.setProperty('--primary', t.primary);
+    root.style.setProperty('--secondary', t.secondary);
+    root.style.setProperty('--theme-light', t.light);
+    root.style.setProperty('--theme-dark', t.dark);
+    document.querySelectorAll('.theme-swatch').forEach(function (sw) {
+      sw.classList.remove('border-gray-800'); sw.classList.add('border-transparent');
+    });
+    document.querySelectorAll('.check-icon').forEach(function (ic) { ic.classList.add('hidden'); });
+    document.querySelectorAll('.theme-radio').forEach(function (r) {
+      if (r.value === name) {
+        var sw = r.parentElement.querySelector('.theme-swatch');
+        var ic = r.parentElement.querySelector('.check-icon');
+        if (sw) { sw.classList.remove('border-transparent'); sw.classList.add('border-gray-800'); }
+        if (ic) ic.classList.remove('hidden');
+      }
+    });
+  }
+  document.querySelectorAll('.theme-radio').forEach(function (r) {
+    r.addEventListener('change', function () { applyTheme(r.value); });
+  });
+
+  // FE Template selection
+  var feInput = document.getElementById('fe_template_input');
+  document.querySelectorAll('.fe-select').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var slug = this.closest('.fe-card').getAttribute('data-slug');
+      if (feInput) feInput.value = slug;
+      try { localStorage.setItem('fe_tpl_selected', slug); } catch(e) {}
+      document.querySelectorAll('.fe-card').forEach(function (c) {
+        var isA = c.getAttribute('data-slug') === slug;
+        var sw = c.querySelector('.fe-swatch');
+        var ch = c.querySelector('.fe-check');
+        var b  = c.querySelector('.fe-select');
+        if (sw) { sw.classList.toggle('border-gray-900', isA); sw.classList.toggle('border-gray-300', !isA); }
+        if (ch) ch.classList.toggle('hidden', !isA);
+        if (b) {
+          b.classList.toggle('btn-primary-tw', isA);
+          b.classList.toggle('btn-outline-dark', !isA);
+          b.innerHTML = isA
+            ? '<i class="fas fa-check me-1"></i> TERPILIH'
+            : '<i class="fas fa-hand-pointer me-1"></i> PILIH';
+        }
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

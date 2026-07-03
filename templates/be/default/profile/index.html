@@ -1,0 +1,54 @@
+{% extends "layouts/be/default/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Profile</h1>
+</div>
+<div class="tw-card p-6">
+  <h2 class="text-lg font-bold mb-4" style="color:var(--primary)">My Profile</h2>
+  <form method="POST" action="{% url 'admin.v1.profile.update' %}?_method=PUT" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="mb-3">
+        <label class="form-label">Code</label>
+        <input type="text" class="form-control" name="code" value="{{ data.code|default:'' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" name="name" value="{{ data.name|default:'' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-control" name="phone" value="{{ data.phone|default:'' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email (readonly)</label>
+        <input type="email" class="form-control bg-gray-50" readonly value="{{ data.email }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Timezone</label>
+        <select name="timezone" class="form-control">
+          {% for tz in timezones %}
+          <option value="{{ tz }}" {% if data.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">New Password (leave blank to keep)</label>
+        <input type="password" class="form-control" name="password">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Picture</label>
+        <div class="mb-2">
+          <img src="{% if data.picture %}{{ data.picture }}{% else %}/static/be/default/img/user.png{% endif %}"
+               style="max-width:100px" class="rounded border p-1"
+               onerror="this.src='/static/be/default/img/user.png'">
+        </div>
+        <input type="file" class="form-control" name="picture" accept="image/*">
+      </div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button type="submit" class="btn btn-primary-tw px-4 py-2"><i class="fas fa-save me-1"></i> Save</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

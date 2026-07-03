@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static core_tags %}
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset Password — {{ setting.name|default:"DjangoAdmin" }}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'{{ theme.primary }}','theme-dark':'{{ theme.dark }}'}}}}</script>
+<style>
+:root{--primary:{{ theme.primary }};--theme-dark:{{ theme.dark }};}
+.sidebar-gradient{background:linear-gradient(135deg,var(--primary),var(--theme-dark));}
+.btn{display:inline-flex;align-items:center;border:0;cursor:pointer;border-radius:.5rem;padding:.5rem 1rem;font-size:.875rem;}
+.btn-primary-tw{background:var(--primary);color:white;}
+.form-control{display:block;width:100%;border-radius:.5rem;border:1px solid #d1d5db;padding:.5rem .75rem;outline:none;}
+.alert{border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem;border:1px solid;}
+.alert-danger{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+.alert-success{background:#f0fdf4;color:#166534;border-color:#bbf7d0;}
+.text-primary-tw{color:var(--primary);}
+</style>
+<link rel="stylesheet" href="{% static 'be/default/vendor/fontawesome-free/css/all.min.css' %}">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-5xl tw-card overflow-hidden grid md:grid-cols-2" style="background:#fff;border-radius:.75rem;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+  <div class="hidden md:flex sidebar-gradient items-center justify-center p-10">
+    <img class="max-w-full max-h-80 object-contain" src="{% get_file '/modules/setting/login-image.png' %}" alt="" onerror="this.style.display='none';">
+  </div>
+  <div class="p-8 md:p-12 flex flex-col justify-center">
+    <div class="mb-8 text-center">
+      <img class="h-14 mx-auto object-contain" src="{% if setting and setting.logo %}{% get_file setting.logo %}{% else %}{% static 'be/default/img/logo.png' %}{% endif %}" alt="logo" onerror="this.style.display='none'">
+    </div>
+    {% if messages %}{% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}{% endif %}
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold" style="color:var(--primary)">Reset Password</h1>
+      <p class="text-sm text-gray-500">Enter Your New Password</p>
+    </div>
+    <form method="POST" action="{% url 'web.auth.reset.proc' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <input type="email" class="form-control" name="email" value="{{ email|default:'' }}" placeholder="Email address">
+      </div>
+      <div class="mb-3">
+        <input type="text" class="form-control" name="otp" value="{{ otp|default:'' }}" placeholder="OTP Code" maxlength="6" autocomplete="one-time-code">
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" name="new_password" placeholder="New Password">
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" name="new_password_confirm" placeholder="Confirm New Password">
+      </div>
+      <button type="submit" class="btn btn-primary-tw py-2 mb-3 justify-center" style="width:100%;">Reset Password</button>
+    </form>
+    <div class="text-center text-sm mt-2">
+      <a href="{% url 'web.auth.reset.req' %}" class="text-primary-tw text-decoration-none">back?</a>
+    </div>
+  </div>
+</div>
+</body></html>

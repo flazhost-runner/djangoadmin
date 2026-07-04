@@ -2,16 +2,29 @@
   "name": "DjangoAdmin",
   "language": "python",
   "install": [
-    { "default": "python3 -m venv .venv", "win32": "python -m venv .venv" },
-    { "default": ".venv/bin/pip install -r requirements.txt", "win32": ".venv\\Scripts\\pip install -r requirements.txt" }
+    {
+      "default": "python3 -m venv .venv",
+      "win32": "python -m venv .venv"
+    },
+    {
+      "default": ".venv/bin/pip install -r requirements.txt",
+      "win32": ".venv\\Scripts\\pip install -r requirements.txt"
+    }
   ],
   "migrate": [
-    { "default": ".venv/bin/python manage.py migrate", "win32": ".venv\\Scripts\\python manage.py migrate" }
+    {
+      "default": ".venv/bin/python manage.py migrate",
+      "win32": ".venv\\Scripts\\python manage.py migrate"
+    }
   ],
   "start": {
     "default": ".venv/bin/python manage.py runserver 0.0.0.0:${APP_PORT}",
     "win32": ".venv\\Scripts\\python manage.py runserver 0.0.0.0:${APP_PORT}"
   },
   "url": "http://localhost:${APP_PORT}",
-  "readyPath": "/"
+  "readyPath": "/",
+  "devEnv": {
+    "DB_ENGINE": "django.db.backends.sqlite3",
+    "DB_NAME": "db.sqlite3"
+  }
 }

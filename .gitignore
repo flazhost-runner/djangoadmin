@@ -27,7 +27,7 @@ dev.sqlite3
 
 # Runtime / generated
 storage/
-media/
+/media/
 staticfiles/
 *.log
 

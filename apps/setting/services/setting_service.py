@@ -20,6 +20,12 @@ class SettingService(ISettingService):
             raise NotFoundError('Setting not found')
         data = remove_empty_fields(data)
         data['updated_by'] = actor_id
+
+        # Validate the FE template slug pattern before saving (anti-SSRF).
+        from apps.home.services.fe_template_service import FeTemplateService
+        fe_slug = data.get('fe_template')
+        if fe_slug is not None and not FeTemplateService().is_valid_slug(fe_slug):
+            raise AppError('Template tidak dikenali', 400)
         for k, v in data.items():
             if k not in FILE_FIELDS and hasattr(setting, k):
                 setattr(setting, k, v)
@@ -41,4 +47,18 @@ class SettingService(ISettingService):
                         setattr(setting, field, url)
 
         setting.save()
+
+        # Refresh the cached Setting so changes show up immediately.
+        from core.context_processors import invalidate_setting_cache
+        invalidate_setting_cache()
+
+        # FE template changed → download on-demand (when not cached yet).
+        # A failed download must not fail the save (landing falls back).
+        if fe_slug:
+            try:
+                FeTemplateService().ensure(fe_slug)
+            except AppError as e:
+                import logging
+                logging.getLogger(__name__).error('Unduh template frontend gagal: %s', e.message)
+
         return setting

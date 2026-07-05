@@ -1,4 +1,5 @@
 Django==6.0.6
+bcrypt==5.0.0
 djangorestframework==3.17.1
 django-environ==0.14.0
 whitenoise==6.12.0

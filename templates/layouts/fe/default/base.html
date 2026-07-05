@@ -1,12 +1,33 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{% block title %}{{ setting.name|default:"Home" }}{% endblock %}</title>
-<script src="https://cdn.tailwindcss.com"></script>
-{% load static %}
-<link rel="stylesheet" href="{% static 'be/default/vendor/fontawesome-free/css/all.min.css' %}">
-{% block extra_head %}{% endblock %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ setting.name|default:"DjangoAdmin" }}{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS v4 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Motion.js for animations (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
+
+  <!-- Custom style (extracted from the monolithic template) -->
+  <link rel="stylesheet" href="{% static 'fe/default/css/style.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
-<body>{% block content %}{% endblock %}</body>
+<body class="bg-white dark:bg-neutral-950">
+<div class="page-wraper">
+  {% include "layouts/fe/default/header.html" %}
+  {% block content %}{% endblock %}
+  {% include "layouts/fe/default/footer.html" %}
+
+  <!-- Motion animations (extracted to file) -->
+  <script src="{% static 'fe/default/js/motion.js' %}"></script>
+</div><!-- /page-wraper -->
+</body>
 </html>

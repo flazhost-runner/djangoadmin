@@ -23,6 +23,15 @@ def _get_cached_setting():
         return _setting_cache
 
 
+def invalidate_setting_cache():
+    """Drop the cached Setting row so the next read hits the DB (call after
+    Setting updates so theme/fe_template changes show up immediately)."""
+    global _setting_cache, _setting_cache_time
+    with _setting_cache_lock:
+        _setting_cache = None
+        _setting_cache_time = 0.0
+
+
 def theme_context(request):
     """Inject current theme palette as CSS vars."""
     try:

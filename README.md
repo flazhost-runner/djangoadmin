@@ -68,6 +68,12 @@ DJANGO_SETTINGS_MODULE=config.settings.development .venv/bin/python manage.py ru
 | `http://localhost:8000/admin/v1/dashboard/` | Dashboard  |
 | `http://localhost:8000/api/v1/auth/login/`  | API login  |
 
+## API (Postman)
+
+Koleksi Postman tersedia di `docs/postman/DjangoAdmin.postman_collection.json`.
+
+Import ke Postman, lalu set variable `base_url` (default `http://localhost:8000`) dan `access_token` (dari `POST /api/v1/auth/login/`).
+
 ## Perintah Bantu
 
 ```bash

@@ -38,15 +38,28 @@ def has_role(context, role_name):
 
 @register.simple_tag
 def get_file(file_name):
-    """Return the URL for a stored file. Mirrors NodeAdmin's getFile() helper."""
+    """Return the render URL for a stored file. Mirrors NodeAdmin's getFile().
+
+    Driver-agnostic and idempotent so switching STORAGE_DRIVER needs only a
+    ``.env`` change (no template edits):
+
+    - oss/s3 store an absolute presigned/public URL -> returned as-is.
+    - local stores an object key or an already-resolved ``/media/...`` path.
+      Bare keys get the MEDIA_URL prefix; already-absolute paths are returned
+      unchanged (prevents the ``/media/media/...`` double-prefix bug).
+    """
     from django.conf import settings as django_settings
     if not file_name:
         return ''
+    # Absolute URL (oss/s3 public/presigned, or any external asset) -> as-is.
     if file_name.startswith('http://') or file_name.startswith('https://'):
         return file_name
+    # Already an absolute path (already carries MEDIA_URL or another root) -> as-is.
+    if file_name.startswith('/'):
+        return file_name
+    # Bare object key -> render under the local MEDIA_URL prefix.
     base = django_settings.MEDIA_URL.rstrip('/')
-    name = file_name.lstrip('/')
-    return f'{base}/{name}'
+    return f'{base}/{file_name}'
 
 
 @register.simple_tag

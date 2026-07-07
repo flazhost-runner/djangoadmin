@@ -26,7 +26,12 @@ dev.sqlite3
 !.env.test
 
 # Runtime / generated
-storage/
+# Uploaded media (local STORAGE_DRIVER): ignore contents, keep the dir tree.
+/storage/*
+!/storage/.gitkeep
+!/storage/editor/
+/storage/editor/*
+!/storage/editor/.gitkeep
 /media/
 staticfiles/
 *.log

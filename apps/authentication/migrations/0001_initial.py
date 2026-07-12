@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='BlacklistedToken',
             fields=[
                 ('id', models.CharField(default=apps.authentication.models._uuid4_str, editable=False, max_length=36, primary_key=True, serialize=False)),
-                ('token', models.TextField(unique=True)),
+                ('token_hash', models.CharField(max_length=64, unique=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
             ],
             options={

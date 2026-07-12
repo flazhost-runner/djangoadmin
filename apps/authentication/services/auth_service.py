@@ -1,14 +1,16 @@
-import uuid
-import time
 import random
 import re
+import time
+
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from .i_auth_service import IAuthService
+
 from apps.access.models import User
-from apps.authentication.models import BlacklistedToken
-from core.errors import UnauthorizedError, NotFoundError, AppError
+from apps.authentication.models import BlacklistedToken, hash_token
+from core.errors import AppError, NotFoundError, UnauthorizedError
+
+from .i_auth_service import IAuthService
 
 
 def _parse_expires_in(value: str) -> int:
@@ -56,7 +58,7 @@ class AuthService(IAuthService):
         return {'user': user, 'token': token}
 
     def logout(self, token: str) -> None:
-        BlacklistedToken.objects.get_or_create(token=token)
+        BlacklistedToken.objects.get_or_create(token_hash=hash_token(token))
 
     def me(self, user) -> dict:
         return {'id': user.id, 'email': user.email, 'name': user.name, 'status': user.status}
